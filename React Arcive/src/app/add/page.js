@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Code, Save, Folder, Plus, Atom, Layout, Terminal, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Save, X, Terminal, Layout } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function AddContent() {
     const router = useRouter();
@@ -51,14 +51,33 @@ export default function AddContent() {
 
     return (
         <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>새 콘텐츠 추가</h1>
-                    <p style={{ opacity: 0.6 }}>제미나이에서 복사한 리액트 코드를 붙여넣으세요.</p>
+            <header className="brand-header">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div className="brand-header-main">
+                        <div className="logo-icon-container brand-header-icon">
+                            <Folder size={32} className="folder-icon" />
+                            <div className="atom-icon-overlay">
+                                <Atom size={18} color="var(--primary)" />
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="brand-header-title gradient-text">React Archive</h1>
+                            <p className="brand-header-tag">FOR GEMINI</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => router.back()} 
+                        className="glass"
+                        style={{ padding: '8px', borderRadius: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
-                <button onClick={() => router.back()} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>
-                    <X size={24} />
-                </button>
+                <div className="brand-header-subtitle">
+                    <span className="brand-header-subtitle-text">
+                        새 콘텐츠 추가
+                    </span>
+                </div>
             </header>
 
             <form onSubmit={handleSubmit} className="add-content-form">

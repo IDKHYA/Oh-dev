@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Folder, ChevronRight, FileCode, RotateCcw } from 'lucide-react';
+import { Folder, Plus, Search, MoreVertical, Edit2, Trash2, Atom, RotateCcw, ChevronRight } from 'lucide-react';
 
 export default function BrowsePage() {
     const [folders, setFolders] = useState([]);
@@ -85,22 +85,37 @@ export default function BrowsePage() {
 
     return (
         <div className="animate-fade-in">
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>Browse Folders</h1>
-                    <p style={{ opacity: 0.6 }}>주제별로 분류된 아카이브 폴더를 탐색합니다.</p>
+            <header className="brand-header">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+                    <div className="brand-header-main">
+                        <div className="logo-icon-container brand-header-icon">
+                            <Folder size={32} className="folder-icon" />
+                            <div className="atom-icon-overlay">
+                                <Atom size={18} color="var(--primary)" />
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="brand-header-title gradient-text">React Archive</h1>
+                            <p className="brand-header-tag">FOR GEMINI</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <button onClick={fetchFolders} className="glass nav-item" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
+                            <RotateCcw size={16} /> <span className="mobile-hide">새로고침</span>
+                        </button>
+                        <button onClick={handleAddFolder} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
+                            <Plus size={16} /> <span className="mobile-hide">폴더 추가</span>
+                        </button>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={fetchFolders} className="glass nav-item" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
-                        <RotateCcw size={16} /> 새로고침
-                    </button>
-                    <button onClick={handleAddFolder} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
-                        <Folder size={16} /> 폴더 추가
-                    </button>
+                <div className="brand-header-subtitle">
+                    <span className="brand-header-subtitle-text">
+                        폴더 탐색
+                    </span>
                 </div>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
                 {folders.map(folder => (
                     <div key={folder} className="glass" style={{ padding: '24px', borderRadius: '16px', transition: 'transform 0.2s', cursor: 'default' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -133,8 +148,12 @@ export default function BrowsePage() {
                         </Link>
                     </div>
                 ))}
-                {folders.length === 0 && !loading && <p style={{ opacity: 0.5 }}>폴더가 아직 없습니다.</p>}
             </div>
+            {folders.length === 0 && !loading && (
+                <div className="glass" style={{ padding: '3rem', textAlign: 'center', opacity: 0.5, borderRadius: '16px' }}>
+                    등록된 폴더가 없습니다. 새로운 폴더를 추가해 보세요.
+                </div>
+            )}
         </div>
     );
 }

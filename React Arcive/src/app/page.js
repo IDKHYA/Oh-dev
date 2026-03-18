@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Clock, Plus, FolderOpen, Play } from 'lucide-react';
+import { Clock, Plus, FolderOpen, Play, Layout, Folder, History, Search, Atom } from 'lucide-react';
 
 export default function Dashboard() {
     const [recentContents, setRecentContents] = useState([]);
@@ -39,9 +39,24 @@ export default function Dashboard() {
 
     return (
         <div className="animate-fade-in">
-            <header style={{ marginBottom: '3rem' }}>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '8px' }}>Dashboard</h1>
-                <p style={{ opacity: 0.6 }}>제미나이 아카이브에 오신 것을 환영합니다.</p>
+            <header className="brand-header">
+                <div className="brand-header-main">
+                    <div className="logo-icon-container brand-header-icon">
+                        <Folder size={36} className="folder-icon" />
+                        <div className="atom-icon-overlay">
+                            <Atom size={20} color="var(--primary)" />
+                        </div>
+                    </div>
+                    <div>
+                        <h1 className="brand-header-title gradient-text">React Archive</h1>
+                        <p className="brand-header-tag">FOR GEMINI</p>
+                    </div>
+                </div>
+                <div className="brand-header-subtitle">
+                    <span className="brand-header-subtitle-text">
+                        대시보드
+                    </span>
+                </div>
             </header>
 
             <section style={{ marginBottom: '4rem' }}>

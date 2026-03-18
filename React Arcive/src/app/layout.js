@@ -4,7 +4,7 @@ import "./globals.css";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, PlusSquare, Folder, Info, Menu, X } from 'lucide-react';
+import { Home, PlusSquare, Folder, Info, Menu, X, Layout, Plus, Search, Github, Atom } from 'lucide-react';
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -41,12 +41,18 @@ export default function RootLayout({ children }) {
           />
 
           <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-            <div className="logo-section">
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold', background: 'linear-gradient(45deg, #fff, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                React Archive
-              </h1>
-              <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>for Gemini</p>
+          <Link href="/" className="logo-section">
+            <div className="logo-icon-container">
+              <Folder size={28} className="folder-icon" />
+              <div className="atom-icon-overlay">
+                <Atom size={14} color="var(--primary)" />
+              </div>
             </div>
+            <div className="logo-text">
+              <span className="logo-title gradient-text">React Archive</span>
+              <span className="logo-subtitle">for Gemini</span>
+            </div>
+          </Link>
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <Link href="/" className={`nav-item ${pathname === '/' ? 'active' : ''}`}>
