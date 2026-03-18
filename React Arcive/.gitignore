@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# React Arcive/react_contents 폴더 안의 모든 파일 무시
+"/React Arcive/react_contents/*"
