@@ -7,6 +7,7 @@ import * as LucideIcons from 'lucide-react';
 import React from 'react';
 import { ChevronLeft, Maximize2, RotateCcw, Code, X, Folder } from 'lucide-react';
 import Link from 'next/link';
+import { useRef } from 'react';
 
 export default function ContentViewer({ params }) {
     const { id } = params;
@@ -26,6 +27,7 @@ export default function ContentViewer({ params }) {
     const [editedTitle, setEditedTitle] = useState('');
     const [editedDescription, setEditedDescription] = useState('');
     const [targetFolder, setTargetFolder] = useState(folder);
+    const viewerRef = useRef(null);
 
     const fetchContent = () => {
         fetch(`/api/contents/${id}?folder=${folder}`)
@@ -54,7 +56,23 @@ export default function ContentViewer({ params }) {
     useEffect(() => {
         fetchContent();
         fetchAllFolders();
+
+        const handleFsChange = () => {
+            setIsFullScreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFsChange);
+        return () => document.removeEventListener('fullscreenchange', handleFsChange);
     }, [id, folder]);
+
+    const toggleFullScreen = () => {
+        if (!document.fullscreenElement) {
+            viewerRef.current?.requestFullscreen().catch(err => {
+                alert(`전체 화면 모드에 진입할 수 없습니다: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
 
     if (loading) return <div style={{ padding: '2rem', opacity: 0.5 }}>콘텐츠를 불러오는 중...</div>;
     if (error) return <div style={{ padding: '2rem', color: '#ff4b4b' }}>데이터를 불러올 수 없습니다: {error}</div>;
@@ -114,35 +132,41 @@ export default function ContentViewer({ params }) {
 
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: (showCode && !isFullScreen) ? '1fr 1fr' : '1fr', gap: '20px', minHeight: 0 }}>
                 {/* 렌더링 영역 */}
-                <div className={`glass ${isFullScreen ? 'viewer-fullscreen' : ''}`} style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', color: '#000', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                    <div style={{ padding: '8px 16px', background: '#f8f9fa', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666' }}>PREVIEW</span>
+                <div 
+                    ref={viewerRef}
+                    className={`glass ${isFullScreen ? 'viewer-fullscreen' : ''}`} 
+                    style={{ 
+                        flex: 1, 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        overflow: 'hidden', 
+                        borderRadius: isFullScreen ? '0' : '24px',
+                        background: isFullScreen ? '#fff' : 'rgba(255, 255, 255, 0.03)',
+                        position: 'relative',
+                        color: isFullScreen ? '#000' : 'inherit'
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: isFullScreen ? '#f8f9fa' : 'transparent', color: isFullScreen ? '#000' : '#fff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Maximize2 size={14} opacity={0.5} />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>PREVIEW</span>
+                        </div>
+                        {isFullScreen ? (
                             <button 
-                                onClick={() => setIsFullScreen(!isFullScreen)} 
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#666' }}
-                                title="전체 화면 토글"
+                                onClick={toggleFullScreen} 
+                                style={{ background: '#ff4b4b', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
                             >
-                                <Maximize2 size={14} />
+                                <X size={18} /> 전체화면 종료 (Esc)
                             </button>
-                        </div>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ff5f57' }} />
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ffbd2e' }} />
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#27c93f' }} />
-                        </div>
+                        ) : (
+                            <button onClick={toggleFullScreen} className="glass" style={{ padding: '6px 12px', color: 'white' }}>
+                                <Maximize2 size={16} />
+                            </button>
+                        )}
                     </div>
-                    {isFullScreen && (
-                        <button 
-                            onClick={() => setIsFullScreen(false)}
-                            style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 210, padding: '10px', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer' }}
-                        >
-                            <X size={20} />
-                        </button>
-                    )}
-                    <div style={{ flex: 1, overflow: 'auto', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ flex: 1, overflow: 'auto', padding: isFullScreen ? '0' : '20px', display: 'flex', flexDirection: 'column', background: '#fff' }}>
                         <div style={{ flex: 1, width: '100%', minHeight: '100%' }}>
-                            <Runner code={content.code} scope={scope} onRenderError={(err) => <div style={{ color: 'red' }}>Rendering Error: {err.message}</div>} />
+                            <Runner code={content.code} scope={scope} onRenderError={(err) => <div style={{ color: 'red', padding: '20px' }}>Rendering Error: {err.message}</div>} />
                         </div>
                     </div>
                 </div>

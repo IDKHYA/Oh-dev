@@ -200,12 +200,14 @@ a {
 }
 
 /* Full Screen Viewer */
-.viewer-fullscreen {
+.viewer-fullscreen, :fullscreen {
   position: fixed !important;
   inset: 0 !important;
-  z-index: 200 !important;
+  z-index: 2000 !important;
   background: #fff !important;
   border-radius: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
 /* AddContent Responsive Layout */
