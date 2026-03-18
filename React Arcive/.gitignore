@@ -37,3 +37,7 @@ next-env.d.ts
 
 # React Arcive/react_contents 폴더 안의 모든 파일 무시
 "/React Arcive/react_contents/*"
+
+
+# 폴더 구조 유지를 위해 .gitkeep 파일만 예외 처리
+"!/React Arcive/react_contents/.gitkeep"
