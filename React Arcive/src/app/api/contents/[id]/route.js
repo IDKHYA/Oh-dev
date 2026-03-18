@@ -25,9 +25,14 @@ export async function PUT(request, { params }) {
         // 폴더 이동이 필요한 경우
         if (toFolder && toFolder !== folder) {
             await moveContent(id, folder, toFolder);
-            // 이동 후 새 폴더 경로에서 업데이트 진행
-            const updated = await updateContent(toFolder, id, code, title, description);
-            return NextResponse.json(updated);
+            
+            // 추가 정보(코드, 제목 등)도 같이 업데이트해야 하는 경우
+            if (code || title || description) {
+                const updated = await updateContent(toFolder, id, code, title, description);
+                return NextResponse.json(updated);
+            }
+            
+            return NextResponse.json({ success: true, id, fromFolder: folder, toFolder });
         }
 
         const updated = await updateContent(folder, id, code, title, description);
