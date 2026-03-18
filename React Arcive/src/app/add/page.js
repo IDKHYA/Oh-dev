@@ -13,11 +13,15 @@ export default function AddContent() {
     const [folders, setFolders] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
+    const fetchFolders = () => {
         fetch('/api/folders')
             .then(res => res.json())
             .then(data => setFolders(data))
             .catch(err => console.error(err));
+    };
+
+    useEffect(() => {
+        fetchFolders();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -122,9 +126,21 @@ export default function AddContent() {
                                 </select>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        const newFolder = prompt('새 폴더 이름을 입력하세요:');
-                                        if (newFolder) setFolder(newFolder);
+                                    onClick={async () => {
+                                        const newFolderName = prompt('새 폴더 이름을 입력하세요:');
+                                        if (newFolderName) {
+                                            const res = await fetch('/api/folders', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ folder: newFolderName })
+                                            });
+                                            if (res.ok) {
+                                                fetchFolders();
+                                                setFolder(newFolderName);
+                                            } else {
+                                                alert('폴더 생성 실패');
+                                            }
+                                        }
                                     }}
                                     className="glass"
                                     style={{ padding: '0 12px', color: 'white', cursor: 'pointer' }}

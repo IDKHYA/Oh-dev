@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Play, Calendar, Database } from 'lucide-react';
+import { ChevronLeft, Calendar, Database, Play } from 'lucide-react';
 
-export default function FolderPage({ params }) {
+export default function FolderContentsPage({ params }) {
     const { folder } = params;
+    const decodedFolder = decodeURIComponent(folder);
     const [contents, setContents] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -18,14 +19,14 @@ export default function FolderPage({ params }) {
 
     return (
         <div className="animate-fade-in">
-            <header style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <Link href="/browse" className="glass nav-item" style={{ padding: '8px', minWidth: 'auto' }}>
-                    <ChevronLeft size={20} />
-                </Link>
-                <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>{folder}</h1>
-                    <p style={{ opacity: 0.6 }}>이 폴더에 저장된 콘텐츠 목록입니다.</p>
+            <header style={{ marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <Link href="/browse" className="glass nav-item" style={{ padding: '8px' }}>
+                        <ChevronLeft size={20} />
+                    </Link>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>{decodedFolder}</h1>
                 </div>
+                <p style={{ opacity: 0.6 }}>{contents.length}개의 리액트 콘텐츠가 이 폴더에 있습니다.</p>
             </header>
 
             {loading ? (

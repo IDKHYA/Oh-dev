@@ -145,3 +145,65 @@ a {
 .btn-primary:hover {
   opacity: 0.9;
 }
+
+/* Responsive & Sidebar Toggle */
+.mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    z-index: 90;
+    transition: left 0.3s ease;
+    width: 280px;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .content-area {
+    padding: 1.5rem;
+    padding-top: 5rem;
+  }
+
+  .mobile-toggle {
+    display: block;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 85;
+    backdrop-filter: blur(4px);
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+}
+
+/* Full Screen Viewer */
+.viewer-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 200 !important;
+  background: #fff !important;
+  border-radius: 0 !important;
+}

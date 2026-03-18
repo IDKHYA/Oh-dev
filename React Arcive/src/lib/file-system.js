@@ -44,10 +44,45 @@ export async function getContentsByFolder(folder = '') {
 }
 
 export async function getAllFolders() {
+    if (!fs.existsSync(ROOT_PATH)) return [];
     const items = fs.readdirSync(ROOT_PATH, { withFileTypes: true });
     return items
         .filter(item => item.isDirectory())
-        .map(item => item.name);
+        .map(item => item.name)
+        .sort((a, b) => a.localeCompare(b, 'ko'));
+}
+
+export async function renameFolder(oldName, newName) {
+    const oldPath = path.join(ROOT_PATH, oldName);
+    const newPath = path.join(ROOT_PATH, newName);
+    if (!fs.existsSync(oldPath)) throw new Error('Source folder not found');
+    if (fs.existsSync(newPath)) throw new Error('Target folder already exists');
+    
+    fs.renameSync(oldPath, newPath);
+    return { oldName, newName };
+}
+
+export async function deleteFolder(folderName) {
+    const targetPath = path.join(ROOT_PATH, folderName);
+    if (!fs.existsSync(targetPath)) throw new Error('Folder not found');
+    
+    fs.rmSync(targetPath, { recursive: true, force: true });
+    return { success: true };
+}
+
+export async function moveContent(id, fromFolder, toFolder) {
+    const oldPath = path.join(ROOT_PATH, fromFolder || 'default', id);
+    const newParentPath = path.join(ROOT_PATH, toFolder || 'default');
+    const newPath = path.join(newParentPath, id);
+
+    if (!fs.existsSync(oldPath)) throw new Error('Source content not found');
+    if (!fs.existsSync(newParentPath)) {
+        fs.mkdirSync(newParentPath, { recursive: true });
+    }
+    if (fs.existsSync(newPath)) throw new Error('Target already exists in destination folder');
+
+    fs.renameSync(oldPath, newPath);
+    return { id, fromFolder, toFolder };
 }
 
 export async function saveContent(folder, title, description, code) {
@@ -81,4 +116,32 @@ export async function getContentById(folder, id) {
     const code = fs.readFileSync(path.join(itemPath, 'content.jsx'), 'utf8');
 
     return { id, folder, ...metadata, code };
+}
+
+export async function updateContent(folder, id, code, title, description) {
+    const itemPath = path.join(ROOT_PATH, folder || 'default', id);
+    if (!fs.existsSync(itemPath)) throw new Error('Content not found');
+
+    const metadataPath = path.join(itemPath, 'metadata.json');
+    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+
+    // 업데이트할 내용 반영
+    if (title) metadata.title = title;
+    if (description) metadata.description = description;
+    metadata.updatedAt = new Date().toISOString();
+    metadata.size = Buffer.byteLength(code, 'utf8');
+
+    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+    fs.writeFileSync(path.join(itemPath, 'content.jsx'), code);
+
+    return { id, ...metadata, code };
+}
+
+export async function createDirectFolder(folder) {
+    const folderPath = path.join(ROOT_PATH, folder);
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+        return { success: true, folder };
+    }
+    return { success: false, message: 'Folder already exists' };
 }
