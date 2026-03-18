@@ -21,11 +21,11 @@ export default function RootLayout({ children }) {
     <html lang="ko">
       <head>
         <script src="https://cdn.tailwindcss.com"></script>
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .runner-container > * {
             max-width: 100%;
           }
-        `}</style>
+        ` }} />
       </head>
       <body>
         <div className="main-container">

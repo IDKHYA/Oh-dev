@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Runner } from 'react-runner';
 import * as LucideIcons from 'lucide-react';
 import React from 'react';
-import { ChevronLeft, Maximize2, RotateCcw, Code, X } from 'lucide-react';
+import { ChevronLeft, Maximize2, RotateCcw, Code, X, Folder } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ContentViewer({ params }) {
     const { id } = params;
@@ -66,6 +67,12 @@ export default function ContentViewer({ params }) {
         },
         React,
         ...React,
+        useState: React.useState,
+        useEffect: React.useEffect,
+        useMemo: React.useMemo,
+        useCallback: React.useCallback,
+        useRef: React.useRef,
+        Fragment: React.Fragment,
         ...LucideIcons,
     };
 
@@ -96,6 +103,9 @@ export default function ContentViewer({ params }) {
                     <button onClick={() => setShowCode(!showCode)} className="glass nav-item" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
                         <Code size={16} /> {showCode ? '코드 숨기기' : '코드 보기'}
                     </button>
+                    <Link href={`/browse/${folder}`} className="glass nav-item" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
+                        <Folder size={16} /> 폴더로 이동
+                    </Link>
                     <button onClick={() => window.location.reload()} className="glass nav-item" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
                         <RotateCcw size={16} /> 새로고침
                     </button>

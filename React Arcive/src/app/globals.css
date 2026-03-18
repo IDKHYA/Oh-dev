@@ -207,3 +207,25 @@ a {
   background: #fff !important;
   border-radius: 0 !important;
 }
+
+/* AddContent Responsive Layout */
+.add-content-form {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .add-content-form {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .form-section {
+    order: 1;
+  }
+  
+  .code-section {
+    order: 2;
+  }
+}
