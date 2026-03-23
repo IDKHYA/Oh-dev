@@ -17,6 +17,7 @@ export default function FolderContentsPage({ params }) {
     const [tempTitle, setTempTitle] = useState('');
     const [tempDescription, setTempDescription] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [deleteStepId, setDeleteStepId] = useState(null); // 'confirm' 단계 확인용 (ID 저장)
 
     const fetchFolders = () => {
         fetch('/api/folders')
@@ -47,8 +48,8 @@ export default function FolderContentsPage({ params }) {
                 body: JSON.stringify({ 
                     folder, 
                     title: tempTitle, 
-                    description: tempDescription,
-                    code: content.code // 코드는 그대로 유지
+                    description: tempDescription
+                    // code는 전달하지 않음 (부분 업데이트 사용)
                 })
             });
             if (res.ok) {
@@ -89,16 +90,43 @@ export default function FolderContentsPage({ params }) {
         }
     };
 
+    const handleDelete = async (id, title) => {
+        setIsProcessing(true);
+        try {
+            const res = await fetch(`/api/contents/${id}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                setContents(prev => prev.filter(c => c.id !== id));
+                setEditingId(null);
+                setDeleteStepId(null);
+            } else {
+                alert('삭제 실패');
+            }
+        } catch (e) {
+            alert('오류 발생');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     return (
-        <div className="animate-fade-in">
-            <header style={{ marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <Link href="/browse" className="glass nav-item" style={{ padding: '8px' }}>
-                        <ChevronLeft size={20} />
-                    </Link>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>{decodedFolder}</h1>
+        <div className="animate-fade-in" style={{ paddingBottom: '3rem' }}>
+            <header className="brand-header">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div className="brand-header-main">
+                        <Link href="/browse" className="glass" style={{ padding: '8px', borderRadius: '12px', marginRight: '8px' }}>
+                            <ChevronLeft size={20} />
+                        </Link>
+                        <div className="logo-text">
+                            <h1 className="brand-header-title gradient-text" style={{ fontSize: '1.4rem' }}>{decodedFolder}</h1>
+                            <p className="brand-header-tag">FOLDER ARCHIVE <span style={{opacity: 0.5}}>v12.0</span></p>
+                        </div>
+                    </div>
                 </div>
-                <p style={{ opacity: 0.6 }}>{contents.length}개의 리액트 콘텐츠가 이 폴더에 있습니다.</p>
+                <div className="brand-header-subtitle">
+                    <span className="brand-header-subtitle-text">{contents.length}개의 콘텐츠</span>
+                </div>
             </header>
 
             {loading ? (
@@ -148,6 +176,34 @@ export default function FolderContentsPage({ params }) {
                                                 저장
                                             </button>
                                             <button onClick={() => setEditingId(null)} className="glass" style={{ padding: '6px 12px' }}>취소</button>
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (deleteStepId === content.id) {
+                                                        handleDelete(content.id, content.title);
+                                                    } else {
+                                                        setDeleteStepId(content.id);
+                                                    }
+                                                }}
+                                                disabled={isProcessing}
+                                                className="glass btn-delete-focus" 
+                                                style={{ 
+                                                    padding: '8px 16px', 
+                                                    color: deleteStepId === content.id ? '#fff' : '#ff4b4b', 
+                                                    background: deleteStepId === content.id ? '#ff4b4b' : 'transparent',
+                                                    border: '1px solid rgba(255, 75, 75, 0.4)',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '0.8rem',
+                                                    borderRadius: '8px',
+                                                    minWidth: '80px',
+                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                                                }}
+                                            >
+                                                {deleteStepId === content.id ? '진짜삭제' : '삭제'}
+                                            </button>
+                                            {deleteStepId === content.id && (
+                                                <button onClick={() => setDeleteStepId(null)} className="glass" style={{ padding: '8px 12px', fontSize: '0.75rem' }}>취소</button>
+                                            )}
                                         </div>
                                     ) : (
                                         <>

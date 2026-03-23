@@ -28,6 +28,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# 데이터 베이스
+react-archive.db
+
 # vercel
 .vercel
 

@@ -7,6 +7,7 @@ import { Folder, Plus, Search, MoreVertical, Edit2, Trash2, Atom, RotateCcw, Che
 export default function BrowsePage() {
     const [folders, setFolders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deleteConfirmFolder, setDeleteConfirmFolder] = useState(null); // 폴더 삭제 확인용
 
     const fetchFolders = () => {
         setLoading(true);
@@ -65,8 +66,6 @@ export default function BrowsePage() {
     };
 
     const handleDeleteFolder = async (name) => {
-        if (!confirm(`'${name}' 폴더를 정말 삭제하시겠습니까? 내부의 모든 콘텐츠가 삭제됩니다.`)) return;
-
         try {
             const res = await fetch(`/api/folders/${name}`, {
                 method: 'DELETE'
@@ -132,13 +131,33 @@ export default function BrowsePage() {
                                     Rename
                                 </button>
                                 <button 
-                                    onClick={(e) => { e.preventDefault(); handleDeleteFolder(folder); }} 
+                                    onClick={(e) => { 
+                                        e.preventDefault(); 
+                                        e.stopPropagation();
+                                        if (deleteConfirmFolder === folder) {
+                                            handleDeleteFolder(folder);
+                                        } else {
+                                            setDeleteConfirmFolder(folder);
+                                        }
+                                    }} 
                                     className="glass" 
-                                    style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#ff4b4b' }}
+                                    style={{ 
+                                        padding: '4px 12px', 
+                                        fontSize: '0.7rem', 
+                                        color: deleteConfirmFolder === folder ? '#fff' : '#ff4b4b',
+                                        background: deleteConfirmFolder === folder ? '#ff4b4b' : 'transparent',
+                                        border: deleteConfirmFolder === folder ? 'none' : '1px solid rgba(255, 75, 75, 0.2)',
+                                        fontWeight: 'bold',
+                                        minWidth: '60px',
+                                        transition: 'all 0.2s'
+                                    }}
                                     title="폴더 삭제"
                                 >
-                                    Delete
+                                    {deleteConfirmFolder === folder ? 'Real Delete' : 'Delete'}
                                 </button>
+                                {deleteConfirmFolder === folder && (
+                                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirmFolder(null); }} className="glass" style={{ padding: '4px 8px', fontSize: '0.6rem' }}>Cancel</button>
+                                )}
                             </div>
                         </div>
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '4px' }}>{decodeURIComponent(folder)}</h3>

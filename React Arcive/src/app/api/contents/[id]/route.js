@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getContentById, updateContent, moveContent } from '@/lib/file-system';
+import { getContentById, updateContent, moveContent, deleteContent } from '@/lib/file-system';
 
 export async function GET(request, { params }) {
     const { id } = params;
@@ -35,8 +35,22 @@ export async function PUT(request, { params }) {
             return NextResponse.json({ success: true, id, fromFolder: folder, toFolder });
         }
 
-        const updated = await updateContent(folder, id, code, title, description);
+        // 일반 업데이트 (메타데이터 또는 코드)
+        const updateData = { title, description };
+        if (code !== undefined) updateData.code = code;
+
+        const updated = await updateContent(folder, id, updateData.code, updateData.title, updateData.description);
         return NextResponse.json(updated);
+    } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function DELETE(request, { params }) {
+    const { id } = params;
+    try {
+        await deleteContent(id);
+        return NextResponse.json({ success: true, id });
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

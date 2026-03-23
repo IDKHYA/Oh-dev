@@ -2,32 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Clock, Plus, FolderOpen, Play, Layout, Folder, History, Search, Atom } from 'lucide-react';
+import { Clock, Plus, FolderOpen, Play, Folder, History, ArrowRight, Database, Box, Activity, Atom, ChevronRight } from 'lucide-react';
 
 export default function Dashboard() {
     const [recentContents, setRecentContents] = useState([]);
     const [folders, setFolders] = useState([]);
+    const [stats, setStats] = useState({ totalContents: 0, totalFolders: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                // 최근 콘텐츠 (전체 폴더에서 가져오기 위해 일단 루트만 조회하거나 복합 조회 필요)
-                // 간단하게 모든 폴더를 먼저 가져온 후 각 폴더의 첫번째 리스트들을 합침
-                const folderRes = await fetch('/api/folders');
-                const foldersData = await folderRes.json();
-                setFolders(foldersData);
-
-                const allContents = [];
-                for (const folder of foldersData) {
-                    const res = await fetch(`/api/contents?folder=${folder}`);
-                    const data = await res.json();
-                    allContents.push(...data.map(c => ({ ...c, folder })));
-                }
+                const [recentRes, foldersRes, statsRes] = await Promise.all([
+                    fetch('/api/contents/recent'),
+                    fetch('/api/folders'),
+                    fetch('/api/stats')
+                ]);
                 
-                // 날짜순 정렬
-                allContents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setRecentContents(allContents.slice(0, 6));
+                const recent = await recentRes.json();
+                const foldersData = await foldersRes.json();
+                const statsData = await statsRes.json();
+                
+                setRecentContents(recent);
+                setFolders(foldersData);
+                setStats(statsData);
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             } finally {
@@ -38,7 +36,8 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="animate-fade-in">
+        <div className="animate-fade-in" style={{ paddingBottom: '4rem' }}>
+            {/* Branded Header */}
             <header className="brand-header">
                 <div className="brand-header-main">
                     <div className="logo-icon-container brand-header-icon">
@@ -49,66 +48,97 @@ export default function Dashboard() {
                     </div>
                     <div>
                         <h1 className="brand-header-title gradient-text">React Archive</h1>
-                        <p className="brand-header-tag">FOR GEMINI</p>
+                        <p className="brand-header-tag">FOR GEMINI <span style={{opacity: 0.5}}>v12.0</span></p>
                     </div>
                 </div>
-                <div className="brand-header-subtitle">
-                    <span className="brand-header-subtitle-text">
-                        대시보드
-                    </span>
+                <div className="brand-header-subtitle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <span className="brand-header-subtitle-text">대시보드</span>
+                    <Link href="/add" className="btn-primary" style={{ padding: '8px 16px', borderRadius: '12px', fontSize: '0.8rem' }}>
+                        <Plus size={14} /> 새 콘텐츠
+                    </Link>
                 </div>
             </header>
 
-            <section style={{ marginBottom: '4rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Clock size={20} color="#6366f1" /> 최근 추가된 콘텐츠
-                    </h2>
-                    <Link href="/add" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.875rem' }}>
-                        <Plus size={16} /> 추가하기
-                    </Link>
+            {/* Quick Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '3rem' }}>
+                <div className="glass" style={{ padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '12px', width: 'fit-content' }}>
+                        <Database size={18} color="var(--primary)" />
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800' }}>{stats.totalContents}</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: '600' }}>보관된 콘텐츠</span>
                 </div>
+                <div className="glass" style={{ padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ padding: '8px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', width: 'fit-content' }}>
+                        <Folder size={18} color="#8b5cf6" />
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800' }}>{stats.totalFolders}</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: '600' }}>활성 폴더</span>
+                </div>
+                <div className="glass mobile-hide" style={{ padding: '20px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ padding: '8px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '12px', width: 'fit-content' }}>
+                        <Activity size={18} color="#ec4899" />
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800' }}>Premium</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: '600' }}>시스템 상태</span>
+                </div>
+            </div>
 
+            {/* Recent Archive: Horizontal Scroll */}
+            <section style={{ marginBottom: '3.5rem' }}>
+                <div className="section-label">
+                    <History size={14} /> 최근 아카이브
+                </div>
+                
                 {loading ? (
-                    <div style={{ opacity: 0.5 }}>로딩 중...</div>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        {[1, 2, 3].map(i => <div key={i} className="glass" style={{ flex: '0 0 280px', height: '180px', opacity: 0.3, borderRadius: '20px' }}></div>)}
+                    </div>
                 ) : recentContents.length === 0 ? (
-                    <div className="glass" style={{ padding: '3rem', textAlign: 'center', opacity: 0.6 }}>
-                        저장된 콘텐츠가 없습니다. 첫 번째 리액트 코드를 추가해보세요!
+                    <div className="glass" style={{ padding: '3rem', textAlign: 'center', opacity: 0.5, borderRadius: '24px' }}>
+                        최근 활동이 없습니다.
                     </div>
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+                    <div className="recent-scroll-container">
                         {recentContents.map((content) => (
-                            <div key={content.id} className="glass archive-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div>
-                                    <span style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: 'bold', textTransform: 'uppercase' }}>{content.folder}</span>
-                                    <h3 style={{ fontSize: '1.125rem', marginTop: '4px' }}>{content.title}</h3>
+                            <Link href={`/viewer/${content.id}?folder=${content.folder}`} key={content.id} className="recent-card">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <span style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: '800', opacity: 0.8 }}>
+                                        {decodeURIComponent(content.folder)}
+                                    </span>
+                                    <ArrowRight size={14} style={{ opacity: 0.3 }} />
                                 </div>
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7, lineHeight: '1.5', minHeight: '4.5em' }}>
-                                    {content.description || "설명이 없습니다."}
-                                </p>
-                                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>{new Date(content.createdAt).toLocaleDateString()}</span>
-                                    <Link href={`/viewer/${content.id}?folder=${content.folder}`} className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
-                                        <Play size={14} /> 실행
-                                    </Link>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', lineHeight: '1.3' }}>{content.title}</h3>
+                                <p className="summary-text">{content.description || "상세 설명이 등록되지 않은 콘텐츠입니다."}</p>
+                                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', opacity: 0.4 }}>
+                                    <Clock size={10} /> {new Date(content.updatedAt).toLocaleDateString()}
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}
             </section>
 
+            {/* Folder Explorer: Premium Grid */}
             <section>
-                <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
-                    <FolderOpen size={20} color="#8b5cf6" /> 폴더 브라우저
-                </h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="section-label">
+                    <FolderOpen size={14} /> 폴더 브라우저
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
                     {folders.map(folder => (
-                        <Link href={`/browse/${folder}`} key={folder} className="glass nav-item" style={{ minWidth: '150px', justifyContent: 'center', padding: '16px' }}>
-                            {folder}
+                        <Link href={`/browse/${folder}`} key={folder} className="folder-grid-item">
+                            <div style={{ position: 'relative' }}>
+                                <Folder size={48} color="#8b5cf6" style={{ opacity: 0.8 }} fill="rgba(139, 92, 246, 0.1)" />
+                                <ChevronRight size={14} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.5 }} />
+                            </div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: '700', textAlign: 'center' }}>{decodeURIComponent(folder)}</span>
                         </Link>
                     ))}
-                    {folders.length === 0 && !loading && <p style={{ opacity: 0.5 }}>생성된 폴더가 없습니다.</p>}
+                    {folders.length === 0 && !loading && (
+                        <div className="glass" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', opacity: 0.5, borderRadius: '24px' }}>
+                            생성된 폴더가 없습니다.
+                        </div>
+                    )}
                 </div>
             </section>
         </div>

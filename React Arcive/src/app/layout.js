@@ -45,12 +45,12 @@ export default function RootLayout({ children }) {
             <div className="logo-icon-container">
               <Folder size={28} className="folder-icon" />
               <div className="atom-icon-overlay">
-                <Atom size={14} color="var(--primary)" />
+                <Atom size={16} color="var(--primary)" />
               </div>
             </div>
             <div className="logo-text">
-              <span className="logo-title gradient-text">React Archive</span>
-              <span className="logo-subtitle">for Gemini</span>
+              <span className="logo-title gradient-text">React Arcive</span>
+              <span className="logo-subtitle">FOR GEMINI <span style={{fontSize: '0.6rem', opacity: 0.5, marginLeft: '4px'}}>v12.0</span></span>
             </div>
           </Link>
 

@@ -52,7 +52,7 @@ export default function AddContent() {
     return (
         <div className="animate-fade-in" style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <header className="brand-header">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <div className="brand-header-main">
                         <div className="logo-icon-container brand-header-icon">
                             <Folder size={32} className="folder-icon" />
@@ -60,23 +60,21 @@ export default function AddContent() {
                                 <Atom size={18} color="var(--primary)" />
                             </div>
                         </div>
-                        <div>
-                            <h1 className="brand-header-title gradient-text">React Archive</h1>
-                            <p className="brand-header-tag">FOR GEMINI</p>
+                        <div className="logo-text">
+                            <h1 className="brand-header-title gradient-text">React Arcive</h1>
+                            <p className="brand-header-tag">FOR GEMINI <span style={{opacity: 0.5}}>v12.0</span></p>
                         </div>
                     </div>
                     <button 
                         onClick={() => router.back()} 
                         className="glass"
-                        style={{ padding: '8px', borderRadius: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}
+                        style={{ padding: '8px', borderRadius: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}
                     >
                         <X size={20} />
                     </button>
                 </div>
                 <div className="brand-header-subtitle">
-                    <span className="brand-header-subtitle-text">
-                        새 콘텐츠 추가
-                    </span>
+                    <span className="brand-header-subtitle-text">새 콘텐츠 추가</span>
                 </div>
             </header>
 
